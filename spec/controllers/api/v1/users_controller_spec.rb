@@ -56,4 +56,42 @@ describe Api::V1::UsersController, type: :controller do
       end
     end
   end
+
+  describe 'PUT/PATCH #update' do
+    context 'when is successfully updated' do
+      it "renders the json representation for the updated user" do
+        user = FactoryGirl.create :user
+        patch :update, { id: user.id, user: { email: 'newmail@example.com' } }, format: :json
+
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        
+        expect(user_response[:email]).to eq 'newmail@example.com'
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when is not updated' do
+      it 'renders an errors JSON' do
+        @user = FactoryGirl.create :user
+        patch :update, { id: @user.id,
+                         user: { email: "bademail.com" } }, format: :json
+
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        
+        expect(user_response).to have_key(:errors)
+        expect(response).to have_http_status(422)
+      end
+
+      it "renders the json errors on when the user could not be update" do
+        @user = FactoryGirl.create :user
+        patch :update, { id: @user.id,
+                         user: { email: "bademail.com" } }, format: :json
+
+        user_response = JSON.parse(response.body, symbolize_names: true)
+        
+        expect(user_response[:errors][:email]).to include 'is invalid'
+        expect(response).to have_http_status(422)
+      end
+    end
+  end
 end
