@@ -94,4 +94,13 @@ describe Api::V1::UsersController, type: :controller do
       end
     end
   end
+
+  describe 'DELETE #destory' do
+    it 'deletes user successfully' do
+      user = FactoryGirl.create :user
+      delete :destroy, { id: user.id }, format: :json
+
+      expect(response).to have_http_status(204)
+    end
+  end
 end
